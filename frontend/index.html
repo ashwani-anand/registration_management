@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7f8;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #4A90E2;
+        }
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .form-container:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        input[type="text"], input[type="email"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: border 0.3s ease;
+        }
+        input[type="text"]:focus, input[type="email"]:focus, input[type="date"]:focus {
+            border-color: #4A90E2;
+            outline: none;
+        }
+        button {
+            background-color: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #357ABD;
+        }
+        #message {
+            margin: 15px 0;
+            padding: 10px;
+            border: 1px solid #4A90E2;
+            border-radius: 5px;
+            background-color: #eaf4fb;
+            color: #4A90E2;
+            display: none; /* Initially hidden */
+        }
+        pre {
+            background-color: #f4f7f8;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            overflow: auto;
+            white-space: pre-wrap; /* Allows text to wrap */
+        }
+    </style>
+    <script>
+        async function registerUser() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const dob = document.getElementById('dob').value;
+            const phone = document.getElementById('phone').value;
+
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ Name: name, Email: email, DateOfBirth: dob, PhoneNumber: phone }),
+            });
+
+            const result = await response.json();
+            const messageBox = document.getElementById('message');
+            if (response.ok) {
+                messageBox.innerText = result.message || "Registration successful!";
+                messageBox.style.color = "#4CAF50"; // Green for success
+            } else {
+                messageBox.innerText = result.message || "Registration failed!";
+                messageBox.style.color = "#F44336"; // Red for error
+            }
+            messageBox.style.display = 'block'; // Show message
+        }
+
+        async function getRegistrations() {
+            const response = await fetch('/registrations');
+            const registrations = await response.json();
+            const output = document.getElementById('output');
+            output.innerHTML = ''; // Clear previous output
+
+            if (registrations.length > 0) {
+                registrations.forEach(reg => {
+                    const regDetail = `ID: ${reg.ID}, Name: ${reg.Name}, Email: ${reg.Email}, Date of Birth: ${reg.DateOfBirth}, Registration Date: ${reg.RegistrationDate}, Phone: ${reg.PhoneNumber || 'N/A'}`;
+                    const pre = document.createElement('pre');
+                    pre.textContent = regDetail; // Add registration details
+                    output.appendChild(pre);
+                });
+            } else {
+                output.innerHTML = "<p>No registrations found.</p>";
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Registration Form</h1>
+    <div class="form-container">
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="date" id="dob" required>
+        <input type="text" id="phone" placeholder="Phone Number">
+        <button onclick="registerUser()">Register</button>
+        <div id="message"></div> <!-- Confirmation message area -->
+    </div>
+    <h2>Registrations</h2>
+    <button onclick="getRegistrations()">Get Registrations</button>
+    <div id="output"></div> <!-- Output for registrations -->
+</body>
+</html>
